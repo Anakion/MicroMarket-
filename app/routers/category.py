@@ -4,10 +4,11 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
-
+from starlette import status
 from app.backend.session import get_async_session
 from app.schemas.category import CreateCategory
-from app.services.category import create_category_db, get_all_categories_in_db, delete_category_in_db
+from app.services.category import create_category_db, get_all_categories_in_db, delete_category_in_db, \
+    update_category_in_db
 
 router = APIRouter(prefix='/category', tags=['category'])
 
@@ -23,13 +24,16 @@ async def create_category(db: Annotated[AsyncSession, Depends(get_async_session)
     new_category = await create_category_db(db, category)
     return JSONResponse(
         content={'Category': f'new category {category.name} success'},
-        status_code=201
+        status_code=status.HTTP_201_CREATED
     )
 
 
 @router.put('/update_category')
-async def update_category():
-    pass
+async def update_category(db: Annotated[AsyncSession, Depends(get_async_session)],
+                          category_id: int,
+                          update_category_db: CreateCategory):
+    update_categories = await update_category_in_db(db, category_id, update_category_db)
+    return update_categories
 
 
 @router.delete('/delete')

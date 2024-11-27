@@ -23,7 +23,16 @@ async def create_category_db(db: AsyncSession, new_category: CreateCategory):
 
 async def get_all_categories_in_db(db: AsyncSession):
     result = await db.execute(select(Category).where(Category.is_active == True))
-    return result.scalars().all()
+
+    all_categories = result.scalars().all()
+
+    if not all_categories:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='There are no categories'
+        )
+
+    return all_categories
 
 
 async def delete_category_in_db(db: AsyncSession, category_id: int):
@@ -44,4 +53,25 @@ async def delete_category_in_db(db: AsyncSession, category_id: int):
     return {
         'status_code': status.HTTP_200_OK,
         'transaction': 'Category deletion successful'
+    }
+
+async def update_category_in_db(db: AsyncSession, category_id: int, update_category: CreateCategory):
+    category = await db.scalar(select(Category).where(Category.id == category_id))
+    if category is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='There is no category found'
+        )
+    update_data = {
+        "name": update_category.name,
+        "slug": slugify(update_category.name),
+        "parent_id": update_category.parent_id,
+    }
+
+    await db.execute(update(Category).where(Category.id == category_id).values(**update_data))
+    await db.commit()
+
+    return {
+        'status_code': status.HTTP_200_OK,
+        'transaction': 'Category update is successful'
     }

@@ -7,4 +7,5 @@ class CreateProduct(BaseModel):
     price: int
     image_url: str
     stock: int
+    rating: float
     category: int
