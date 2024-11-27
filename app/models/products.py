@@ -13,7 +13,7 @@ class Product(Base):
     price: Mapped[int]
     image_url: Mapped[str]
     stock: Mapped[int]
-    category_id: Mapped[Integer, ForeignKey('categories.id')]
+    category_id: Mapped[int] = mapped_column(ForeignKey('categories.id'))
     rating: Mapped[float]
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
