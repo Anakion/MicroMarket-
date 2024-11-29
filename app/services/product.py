@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from slugify import slugify
-from sqlalchemy import insert
+from sqlalchemy import insert, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from starlette import status
@@ -89,4 +89,18 @@ async def update_product_in_db(db: AsyncSession, product_slug: str, data: Create
     return {
         "status_code": status.HTTP_200_OK,
         "transaction": "Product update is successful"
+    }
+
+
+async def delete_product_from_db(db: AsyncSession, product_id: int):
+    get_product = await db.scalar(select(Product).where(Product.id == product_id))
+    if get_product is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="There is no product found")
+
+    await db.execute(update(Product).where(Product.id == product_id).values(is_active=False))
+    await db.commit()
+
+    return {
+        "status_code": status.HTTP_200_OK,
+        "transaction": "Product delete is successful"
     }

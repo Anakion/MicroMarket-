@@ -7,7 +7,7 @@ from starlette import status
 from app.backend.session import get_async_session
 from app.schemas.product import CreateProduct
 from app.services.product import add_new_product_in_db, get_all_products_in_db, product_by_category_in_db, \
-    product_detail_in_db, update_product_in_db
+    product_detail_in_db, update_product_in_db, delete_product_from_db
 
 router = APIRouter(prefix='/products', tags=['products'])
 
@@ -47,5 +47,7 @@ async def update_product(db: Annotated[AsyncSession, Depends(get_async_session)]
     return upd_product
 
 @router.delete('/delete')
-async def delete_product(product_id: int):
-    pass
+async def delete_product(db: Annotated[AsyncSession, Depends(get_async_session)],
+                         product_id: int):
+    delete_product_ = await delete_product_from_db(db, product_id)
+    return delete_product_
