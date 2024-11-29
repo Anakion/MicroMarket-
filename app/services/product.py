@@ -4,6 +4,7 @@ from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from starlette import status
+from sqlalchemy import or_
 
 from app.models import Product, Category
 from app.schemas.product import CreateProduct
@@ -58,3 +59,34 @@ async def product_by_category_in_db(db: AsyncSession, category_slug_db: str):
     return products.all()
 
 
+async def product_detail_in_db(db: AsyncSession, product_slug: str):
+    get_detail_product = await db.scalar(
+        select(Product).where(
+            or_(
+                Product.name == product_slug,
+                Product.slug == product_slug
+            )
+        )
+    )
+    if get_detail_product is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="There are no product")
+    return get_detail_product
+
+
+async def update_product_in_db(db: AsyncSession, product_slug: str, data: CreateProduct):
+    get_product = await db.scalar(select(Product).where(Product.slug == product_slug))
+    if get_product is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="There is no product found")
+
+
+    get_product.name = data.name
+    get_product.description = data.description
+    get_product.price = data.price
+
+    db.add(get_product)
+    await db.commit()
+
+    return {
+        "status_code": status.HTTP_200_OK,
+        "transaction": "Product update is successful"
+    }
