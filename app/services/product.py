@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from starlette import status
 
-from app.models import Product
+from app.models import Product, Category
 from app.schemas.product import CreateProduct
 
 
@@ -39,3 +39,22 @@ async def get_all_products_in_db(db: AsyncSession):
         )
 
     return all_products
+
+
+async def product_by_category_in_db(db: AsyncSession, category_slug_db: str):
+    category = await db.scalar(select(Category).where(Category.name == category_slug_db))
+    if category is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+    subcategories = await db.scalars(select(Category).where(Category.parent_id == category.id))
+    all_category_ids = [category.id] + [subcat.id for subcat in subcategories]
+    products = await db.scalars(
+        select(Product).where(
+            Product.category_id.in_(all_category_ids),
+            Product.is_active == True,
+            Product.stock > 0
+        )
+    )
+
+    return products.all()
+
+

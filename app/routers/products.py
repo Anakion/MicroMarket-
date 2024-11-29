@@ -1,12 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from starlette import status
 from app.backend.session import get_async_session
 from app.schemas.product import CreateProduct
-from app.services.product import add_new_product_in_db, get_all_products_in_db
+from app.services.product import add_new_product_in_db, get_all_products_in_db, product_by_category_in_db
 
 router = APIRouter(prefix='/products', tags=['products'])
 
@@ -25,8 +25,10 @@ async def create_product(db: Annotated[AsyncSession, Depends(get_async_session)]
 
 
 @router.get('/{category_slug}')
-async def product_by_category(category_slug: str):
-    pass
+async def product_by_category(db: Annotated[AsyncSession, Depends(get_async_session)],
+                              category_slug: str):
+    category = await product_by_category_in_db(db, category_slug)
+    return category
 
 
 @router.get('/detail/{product_slug}')
