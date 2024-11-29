@@ -4,6 +4,7 @@ services:
   postgres:
     image: 'postgres:latest'
     container_name: shop_db
+    restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -12,8 +13,31 @@ services:
       - '5434:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - custom
+
+  postgres_test:
+    image: 'postgres:latest'
+    container_name: test_shop_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - '5433:5432'
+    volumes:
+      - pgdata_test:/var/lib/postgresql/data
+    networks:
+      - custom
+
 
 volumes:
   pgdata:
+  pgdata_test:
+
+networks:
+  custom:
+    driver: bridge
 
 
