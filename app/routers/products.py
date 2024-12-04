@@ -80,7 +80,6 @@ async def update_product(db: Annotated[AsyncSession, Depends(get_async_session)]
 async def delete_product(db: Annotated[AsyncSession, Depends(get_async_session)],
                          get_user: Annotated[dict, Depends(get_current_user)],
                          product_id: int):
-    print(get_user)
     product_update = await db.scalar(select(Product).where(Product.id == product_id))
     if get_user.get('is_admin') or get_user.get('is_supplier'):
         if product_update.supplier_id == get_user.get('id') or get_user.get('is_admin'):
