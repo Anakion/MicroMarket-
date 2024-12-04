@@ -10,7 +10,7 @@ from app.models import Product, Category
 from app.schemas.product import CreateProduct
 
 
-async def add_new_product_in_db(db: AsyncSession, data: CreateProduct):
+async def add_new_product_in_db(db: AsyncSession, data: CreateProduct, supplier_id: int):
     await db.execute(insert(Product).values(
         name=data.name,
         slug=slugify(data.name),
@@ -19,6 +19,7 @@ async def add_new_product_in_db(db: AsyncSession, data: CreateProduct):
         image_url=data.image_url,
         stock=data.stock,
         rating=data.rating,
+        supplier_id=supplier_id,
         category_id=data.category
     ))
     await db.commit()
