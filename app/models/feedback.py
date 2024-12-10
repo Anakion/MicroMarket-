@@ -12,8 +12,8 @@ class FeedBack(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=True)
     product_id: Mapped[int] = mapped_column(Integer, ForeignKey('products.id'), nullable=True)
-    rating_id: Mapped[int] = mapped_column(Integer, ForeignKey('ratings.id'), nullable=True)
+    rating_id: Mapped[int] = mapped_column(Integer, ForeignKey('rating.id'), nullable=True)
     comment: Mapped[str]
-    comment_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)  # Дата отзыва
+    comment_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     is_active: Mapped[bool]
 

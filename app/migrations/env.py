@@ -11,6 +11,10 @@ from app.backend.base import Base
 from app.models.category import Category
 from app.models.products import Product
 from app.models.user import User
+from app.models.rating import Rating
+from app.models.feedback import FeedBack
+
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
